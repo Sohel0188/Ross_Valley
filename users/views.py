@@ -9,17 +9,24 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
+from .models import UserAccount
 
 # for sending email
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.shortcuts import redirect
-from . import models
+from .import models
 # Create your views here.   
-  
+class UserViewset(viewsets.ModelViewSet):
+    queryset = models.User.objects.all()
+    serializer_class = serializers.UserSerializer
+    
+class UserAcountViewset(viewsets.ModelViewSet):
+    queryset = models.UserAccount.objects.all()
+    serializer_class = serializers.UserAccountSerializer
+   
 class UserRegistrationApiView(APIView):
     serializer_class = serializers.UserRegistrationSerializer
-    
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         
@@ -30,7 +37,7 @@ class UserRegistrationApiView(APIView):
             print("token ", token)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             print("uid ", uid)
-            confirm_link = f"http://127.0.0.1:8000/patient/active/{uid}/{token}"
+            confirm_link = f"http://127.0.0.1:8000/users/active/{uid}/{token}"
             email_subject = "Confirm Your Email"
             email_body = render_to_string('email.html', {'confirm_link' : confirm_link})
             
@@ -38,6 +45,7 @@ class UserRegistrationApiView(APIView):
             email.attach_alternative(email_body, "text/html")
             email.send()
             return Response("Check your mail for confirmation")
+        
         return Response(serializer.errors)
     
 def activate(request, uid64, token):
@@ -50,7 +58,7 @@ def activate(request, uid64, token):
     if user is not None and default_token_generator.check_token(user, token):
         user.is_active = True
         user.save()
-        return redirect('register')
+        return redirect('login')
     else:
         return redirect('register')
     
@@ -65,10 +73,13 @@ class UserLoginApiView(APIView):
             
             if user:
                 token, _ = Token.objects.get_or_create(user=user)
-                print(token)
-                print(_)
+                # userAccount = UserAccount.objects.get_or_create(user=user)
+                userAccount, created = UserAccount.objects.get_or_create(user=user)
+                print(userAccount)
+                print(created)
+                print(_) 
                 login(request, user)
-                return Response({'token' : token.key, 'user_id' : user.id})
+                return Response({'token' : token.key, 'user_id' : userAccount.id})
             else:
                 return Response({'error' : "Invalid Credential"})
         return Response(serializer.errors)

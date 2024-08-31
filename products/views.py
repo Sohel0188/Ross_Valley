@@ -12,8 +12,8 @@ class ProcuctsViewset(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
         cat_id = self.request.query_params.get('category_id')
-        if cat_id :
-            queryset = queryset.filter(cat_id=cat_id)
+        if cat_id:
+            queryset = queryset.filter(category__id=cat_id)
         return queryset
     
 class CategoriesViewset(viewsets.ModelViewSet):
@@ -23,3 +23,10 @@ class CategoriesViewset(viewsets.ModelViewSet):
 class ReviewViewset(viewsets.ModelViewSet):
     queryset = models.Review.objects.all()
     serializer_class = serializer.ReviewSerializer
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        product_id = self.request.query_params.get('product')
+       
+        if product_id:
+            queryset = queryset.filter(product=product_id)
+        return queryset

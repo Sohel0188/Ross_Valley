@@ -10,6 +10,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class ProductsSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Products
+        # fields = ['product_name', 'product_slug', 'product_image','product_description','product_price','product_quantity']
         fields = '__all__'
         
 class ReviewSerializer(serializers.ModelSerializer):

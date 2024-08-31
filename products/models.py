@@ -35,5 +35,5 @@ class Review(models.Model):
     rating = models.CharField(choices = STAR_CHOICES, max_length = 10)
     
     def __str__(self):
-        return f"Reviewer : {self.reviewer.user.first_name}"
+        return f"Reviewer : {self.reviewer.user.first_name} | Product Name : {self.product.product_name}"
     
