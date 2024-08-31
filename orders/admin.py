@@ -25,7 +25,7 @@ class OrderAdmin(admin.ModelAdmin):
         obj.save()
         if obj.order_status == "Processing" or "Completed":
             email_subject = "Order Status"
-            email_body = render_to_string('orderEmail.html', {'user' : obj.customer.user})
+            email_body = render_to_string('orderEmail.html', {'user' : obj.customer.user},{'order_status' : obj.order_status})
             
             email = EmailMultiAlternatives(email_subject , '', to=[obj.customer.user.email])
             email.attach_alternative(email_body, "text/html")

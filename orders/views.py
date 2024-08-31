@@ -22,12 +22,13 @@ class OrderViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         product = serializer.validated_data['product']
         email = serializer.validated_data['email']
+        phone = serializer.validated_data['phone']
         print(email);
         if product.product_quantity > 0:
             product.product_quantity -= 1
             product.save()
             email_subject = "Thank You Creating An Order"
-            email_body = render_to_string('orderemail.html')
+            email_body = render_to_string('orderemail.html',{'product' : product.product_name, 'amount' : product.product_price, 'email' : email,'phone':phone})
             email = EmailMultiAlternatives(email_subject , '', to=[email]) 
             email.attach_alternative(email_body, "text/html")
             email.send()
